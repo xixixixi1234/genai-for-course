@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GRA6842 · Mastering Negotiation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f4efe6;
+    --bg-elev: #faf6ee;
+    --ink: #1a1f1c;
+    --ink-soft: #4a4f4c;
+    --ink-faint: #8a8f8c;
+    --line: #d8d0c1;
+    --moss: #2a4a3a;
+    --moss-deep: #1a3528;
+    --rust: #b04830;
+    --rust-soft: #d8a08a;
+    --gold: #b8893a;
+    --shadow: 0 1px 0 rgba(26,31,28,0.06), 0 8px 24px -12px rgba(26,31,28,0.12);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(26,31,28,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(26,31,28,0.025) 1px, transparent 1px);
+    background-size: 32px 32px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .serif { font-family: 'Fraunces', Georgia, serif; font-variation-settings: "opsz" 144; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* Login Screen */
+  .login-screen {
+    position: fixed; inset: 0;
+    display: grid; place-items: center;
+    z-index: 10;
+    background: var(--bg);
+  }
+  .login-card {
+    position: relative;
+    width: min(540px, 90vw);
+    padding: 56px 56px 48px;
+    background: var(--bg-elev);
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    box-shadow: var(--shadow);
+  }
+  .login-card::before {
+    content: '';
+    position: absolute;
+    top: -1px; left: -1px; right: -1px;
+    height: 8px;
+    background: linear-gradient(90deg, var(--moss) 0%, var(--moss) 40%, var(--rust) 40%, var(--rust) 65%, var(--gold) 65%, var(--gold) 100%);
+  }
+  .login-meta {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    margin-bottom: 36px;
+  }
+  .login-title {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: "opsz" 144, "wght" 400;
+    font-size: 56px;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+  .login-title em {
+    font-style: italic;
+    font-variation-settings: "opsz" 144, "wght" 300;
+    color: var(--rust);
+  }
+  .login-subtitle {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 17px;
+    color: var(--ink-soft);
+    margin-bottom: 40px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--line);
+  }
+  .login-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 10px;
+    display: block;
+  }
+  .login-input {
+    width: 100%;
+    padding: 14px 0;
+    border: none;
+    border-bottom: 1.5px solid var(--ink);
+    background: transparent;
+    font-family: 'Fraunces', serif;
+    font-size: 24px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.3s;
+  }
+  .login-input:focus { border-bottom-color: var(--rust); }
+  .login-input::placeholder { color: var(--ink-faint); font-style: italic; }
+  .login-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 32px;
+  }
+  .login-hint {
+    font-size: 12px;
+    color: var(--ink-faint);
+    font-style: italic;
+  }
+  .btn-primary {
+    background: var(--moss-deep);
+    color: var(--bg-elev);
+    border: none;
+    padding: 14px 32px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 1px;
+  }
+  .btn-primary:hover { background: var(--rust); transform: translateY(-1px); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  /* Main Screen */
+  .main-screen {
+    display: none;
+    position: relative;
+    z-index: 1;
+    height: 100vh;
+    grid-template-columns: 320px 1fr;
+  }
+  .main-screen.active { display: grid; }
+
+  .sidebar {
+    background: var(--bg-elev);
+    border-right: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .sidebar-header {
+    padding: 24px 28px 20px;
+    border-bottom: 1px solid var(--line);
+  }
+  .brand {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .brand-mark {
+    width: 28px; height: 28px;
+    background: var(--moss-deep);
+    color: var(--bg);
+    display: grid; place-items: center;
+    font-family: 'Fraunces', serif;
+    font-size: 16px;
+    font-style: italic;
+    border-radius: 2px;
+  }
+  .brand-name {
+    font-family: 'Fraunces', serif;
+    font-size: 19px;
+    letter-spacing: -0.01em;
+  }
+  .student-tag {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 2px;
+  }
+  .student-dot { width: 7px; height: 7px; background: var(--rust); border-radius: 50%; }
+  .student-name {
+    font-family: 'Fraunces', serif;
+    font-size: 15px;
+  }
+  .student-meta {
+    margin-left: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--ink-faint);
+    letter-spacing: 0.1em;
+  }
+
+  .sidebar-section {
+    padding: 24px 28px 12px;
+  }
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .section-count {
+    background: var(--bg);
+    padding: 2px 8px;
+    border: 1px solid var(--line);
+    font-size: 10px;
+  }
+
+  .case-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 16px 24px;
+  }
+  .case-item {
+    padding: 14px 12px;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-bottom: 4px;
+    border-left: 2px solid transparent;
+  }
+  .case-item:hover {
+    background: var(--bg);
+    border-left-color: var(--gold);
+  }
+  .case-item.active {
+    background: var(--bg);
+    border-left-color: var(--rust);
+  }
+  .case-item-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--ink-faint);
+    letter-spacing: 0.1em;
+    margin-bottom: 4px;
+  }
+  .case-item-title {
+    font-family: 'Fraunces', serif;
+    font-size: 15px;
+    line-height: 1.3;
+    margin-bottom: 4px;
+  }
+  .case-item-desc {
+    font-size: 12px;
+    color: var(--ink-soft);
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .free-chat-item {
+    margin: 0 16px 8px;
+    padding: 14px 12px;
+    border: 1px dashed var(--line);
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .free-chat-item:hover { background: var(--bg); border-style: solid; border-color: var(--moss); }
+  .free-chat-item.active { background: var(--bg); border-style: solid; border-color: var(--moss); }
+
+  .chat-area {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg);
+  }
+  .chat-header {
+    padding: 24px 40px 20px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-elev);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  .chat-header-left { flex: 1; min-width: 0; }
+  .breadcrumb {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 8px;
+  }
+  .chat-title {
+    font-family: 'Fraunces', serif;
+    font-size: 32px;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    margin-bottom: 8px;
+  }
+  .chat-subtitle {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 14px;
+    color: var(--ink-soft);
+  }
+  .case-file-link {
+    display: inline-block;
+    margin-top: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--rust);
+    text-decoration: none;
+    border-bottom: 1px solid var(--rust);
+    padding-bottom: 1px;
+  }
+
+  .messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 32px 40px 24px;
+  }
+  .empty-state {
+    max-width: 560px;
+    margin: 60px auto 0;
+    text-align: center;
+  }
+  .empty-state-mark {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 72px;
+    color: var(--rust);
+    line-height: 1;
+    margin-bottom: 20px;
+  }
+  .empty-state-text {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    line-height: 1.4;
+    color: var(--ink);
+    margin-bottom: 12px;
+  }
+  .empty-state-sub {
+    font-size: 14px;
+    color: var(--ink-soft);
+  }
+  .case-content-preview {
+    max-width: 720px;
+    margin: 0 auto 36px;
+    padding: 24px 28px;
+    background: var(--bg-elev);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--gold);
+    border-radius: 2px;
+    font-family: 'Fraunces', serif;
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--ink-soft);
+    white-space: pre-wrap;
+  }
+  .case-content-preview .preview-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .msg {
+    max-width: 720px;
+    margin: 0 auto 28px;
+    display: flex;
+    gap: 16px;
+  }
+  .msg-avatar {
+    flex-shrink: 0;
+    width: 32px; height: 32px;
+    border-radius: 2px;
+    display: grid; place-items: center;
+    font-family: 'Fraunces', serif;
+    font-size: 13px;
+    font-style: italic;
+  }
+  .msg.user .msg-avatar { background: var(--rust); color: var(--bg-elev); }
+  .msg.assistant .msg-avatar {
+    background: var(--moss-deep); color: var(--bg-elev);
+  }
+  .msg-body { flex: 1; min-width: 0; padding-top: 4px; }
+  .msg-role {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 6px;
+  }
+  .msg-content {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--ink);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  .msg.assistant .msg-content {
+    font-family: 'Fraunces', serif;
+    font-size: 16px;
+  }
+  .msg-content code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    background: var(--bg-elev);
+    padding: 1px 6px;
+    border-radius: 2px;
+    border: 1px solid var(--line);
+  }
+  .msg-content pre {
+    background: var(--bg-elev);
+    border: 1px solid var(--line);
+    padding: 14px 16px;
+    border-radius: 2px;
+    overflow-x: auto;
+    margin: 8px 0;
+  }
+  .msg-content pre code { background: none; border: none; padding: 0; }
+
+  .typing-indicator {
+    display: inline-flex;
+    gap: 4px;
+    padding: 4px 0;
+  }
+  .typing-indicator span {
+    width: 6px; height: 6px;
+    background: var(--moss);
+    border-radius: 50%;
+    animation: typing 1.4s infinite;
+  }
+  .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+  .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes typing {
+    0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
+    30% { opacity: 1; transform: translateY(-3px); }
+  }
+
+  .composer {
+    border-top: 1px solid var(--line);
+    background: var(--bg-elev);
+    padding: 20px 40px 24px;
+  }
+  .composer-inner {
+    max-width: 720px;
+    margin: 0 auto;
+    position: relative;
+  }
+  .composer-textarea {
+    width: 100%;
+    min-height: 60px;
+    max-height: 200px;
+    padding: 16px 56px 16px 18px;
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    background: var(--bg);
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--ink);
+    resize: none;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .composer-textarea:focus { border-color: var(--moss); }
+  .composer-send {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    width: 40px; height: 40px;
+    background: var(--moss-deep);
+    color: var(--bg);
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    display: grid; place-items: center;
+    transition: background 0.2s;
+  }
+  .composer-send:hover { background: var(--rust); }
+  .composer-send:disabled { opacity: 0.3; cursor: not-allowed; }
+  .composer-hint {
+    margin-top: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--ink-faint);
+    display: flex;
+    justify-content: space-between;
+  }
+  .composer-hint a { color: var(--moss); text-decoration: none; border-bottom: 1px dotted var(--moss); }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--ink-faint); }
+
+  .toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    background: var(--rust);
+    color: var(--bg-elev);
+    font-size: 13px;
+    border-radius: 2px;
+    box-shadow: var(--shadow);
+    z-index: 100;
+    transition: opacity 0.3s;
+  }
+
+  @media (max-width: 768px) {
+    .main-screen.active { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .chat-header, .messages, .composer { padding-left: 20px; padding-right: 20px; }
+    .login-card { padding: 40px 28px; }
+    .login-title { font-size: 40px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="loginScreen" class="login-screen">
+  <div class="login-card">
+    <div class="login-meta">
+      <span>est. 2026</span>
+      <span id="loginDate"></span>
+    </div>
+
+    <h1 class="login-title serif">Mastering<br><em>Negotiation</em></h1>
+    <p class="login-subtitle serif">GRA6842 · A space to rehearse, argue, and refine your negotiation thinking with an AI sparring partner.</p>
+
+    <label class="login-label" for="nameInput">Your Name</label>
+    <input
+      id="nameInput"
+      class="login-input serif"
+      type="text"
+      placeholder="Jane Doe"
+      maxlength="50"
+      autocomplete="off"
+    />
+
+    <div class="login-actions">
+      <span class="login-hint serif">Press Enter or click to begin</span>
+      <button id="enterBtn" class="btn-primary">Enter</button>
+    </div>
+  </div>
+</div>
+
+<div id="mainScreen" class="main-screen">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="brand">
+        <div class="brand-mark serif">N</div>
+        <div class="brand-name serif">GRA6842</div>
+      </div>
+      <div class="student-tag">
+        <div class="student-dot"></div>
+        <div class="student-name serif" id="studentNameDisplay">—</div>
+        <div class="student-meta" id="sessionTime">00:00</div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="section-label">
+        <span>Open Discussion</span>
+      </div>
+    </div>
+    <div id="freeChatItem" class="free-chat-item">
+      <div class="case-item-num">¶ open</div>
+      <div class="case-item-title serif">Free Conversation</div>
+      <div class="case-item-desc">Ask anything, not tied to any case.</div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="section-label">
+        <span>Case Library</span>
+        <span class="section-count" id="caseCount">0</span>
+      </div>
+    </div>
+    <div id="caseList" class="case-list"></div>
+  </aside>
+
+  <main class="chat-area">
+    <div class="chat-header">
+      <div class="chat-header-left">
+        <div class="breadcrumb" id="breadcrumb">— · —</div>
+        <h2 class="chat-title serif" id="chatTitle">Select a case to begin</h2>
+        <p class="chat-subtitle serif" id="chatSubtitle"></p>
+        <a id="caseFileLink" class="case-file-link" target="_blank" style="display:none">View attachment →</a>
+      </div>
+    </div>
+
+    <div id="messages" class="messages">
+      <div class="empty-state">
+        <div class="empty-state-mark serif">¶</div>
+        <div class="empty-state-text serif">Choose a <em>case</em> from the left, or start a <em>free conversation</em>.</div>
+        <div class="empty-state-sub">Every exchange becomes part of your learning record.</div>
+      </div>
+    </div>
+
+    <div class="composer">
+      <div class="composer-inner">
+        <textarea
+          id="composerInput"
+          class="composer-textarea"
+          placeholder="Type your question, idea, or where you're stuck…"
+          rows="2"
+        ></textarea>
+        <button id="sendBtn" class="composer-send" title="Send (Enter)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 12h14M13 6l6 6-6 6"/>
+          </svg>
+        </button>
+        <div class="composer-hint">
+          <span>Enter to send · Shift+Enter for new line</span>
+          <span><a href="/admin" target="_blank">Instructor Console →</a></span>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  const state = {
+    token: localStorage.getItem('eduai_token') || null,
+    name: localStorage.getItem('eduai_name') || null,
+    currentCaseId: null,
+    currentCase: null,
+    cases: [],
+    sending: false,
+    sessionStart: Date.now(),
+  };
+
+  const $ = (s) => document.querySelector(s);
+  function toast(msg) {
+    const el = document.createElement('div');
+    el.className = 'toast';
+    el.textContent = msg;
+    document.body.appendChild(el);
+    setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 300); }, 3000);
+  }
+  function fmtTime(ms) {
+    const s = Math.floor(ms / 1000);
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+  }
+  function escapeHtml(s) {
+    return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function formatMsg(text) {
+    let html = escapeHtml(text);
+    html = html.replace(/```([\s\S]*?)```/g, (_, c) => `<pre><code>${c}</code></pre>`);
+    html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+    html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    return html;
+  }
+
+  async function api(path, opts = {}) {
+    const headers = { 'Content-Type': 'application/json', ...opts.headers };
+    if (state.token) headers['x-session-token'] = state.token;
+    const res = await fetch(path, { ...opts, headers });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || 'Request failed');
+    return data;
+  }
+
+  function updateLoginDate() {
+    const d = new Date();
+    $('#loginDate').textContent = d.toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g,'.');
+  }
+
+  async function handleLogin() {
+    const name = $('#nameInput').value.trim();
+    if (!name) { toast('Please enter your name'); return; }
+    $('#enterBtn').disabled = true;
+    try {
+      const data = await api('/api/login', { method: 'POST', body: JSON.stringify({ name }) });
+      state.token = data.token;
+      state.name = data.name;
+      localStorage.setItem('eduai_token', data.token);
+      localStorage.setItem('eduai_name', data.name);
+      enterMain();
+    } catch (e) {
+      toast(e.message);
+      $('#enterBtn').disabled = false;
+    }
+  }
+
+  async function enterMain() {
+    $('#loginScreen').style.display = 'none';
+    $('#mainScreen').classList.add('active');
+    $('#studentNameDisplay').textContent = state.name;
+    state.sessionStart = Date.now();
+    updateSessionTime();
+    await loadCases();
+    setupHeartbeat();
+    // Default to free-chat view so students see the welcome message
+    selectFreeChat();
+  }
+
+  function updateSessionTime() {
+    $('#sessionTime').textContent = fmtTime(Date.now() - state.sessionStart);
+    setTimeout(updateSessionTime, 1000);
+  }
+
+  function setupHeartbeat() {
+    setInterval(() => {
+      api('/api/heartbeat', { method: 'POST' }).catch(()=>{});
+    }, 30000);
+    window.addEventListener('beforeunload', () => {
+      navigator.sendBeacon('/api/heartbeat?token=' + state.token);
+    });
+  }
+
+  async function loadCases() {
+    try {
+      const { cases } = await api('/api/cases');
+      state.cases = cases;
+      renderCaseList();
+    } catch (e) {
+      if (e.message.toLowerCase().includes('session') || e.message.toLowerCase().includes('logged')) {
+        localStorage.clear();
+        location.reload();
+        return;
+      }
+      toast(e.message);
+    }
+  }
+
+  function renderCaseList() {
+    $('#caseCount').textContent = String(state.cases.length).padStart(2,'0');
+    const list = $('#caseList');
+    if (state.cases.length === 0) {
+      list.innerHTML = '<div style="padding:12px;color:var(--ink-faint);font-size:13px;font-style:italic;">No cases have been uploaded yet</div>';
+      return;
+    }
+    list.innerHTML = state.cases.map((c, i) => `
+      <div class="case-item" data-id="${c.id}">
+        <div class="case-item-num">№ ${String(i+1).padStart(2,'0')}</div>
+        <div class="case-item-title serif">${escapeHtml(c.title)}</div>
+        <div class="case-item-desc">${escapeHtml(c.description || '')}</div>
+      </div>
+    `).join('');
+    list.querySelectorAll('.case-item').forEach(el => {
+      el.addEventListener('click', () => selectCase(parseInt(el.dataset.id)));
+    });
+  }
+
+  async function selectCase(caseId) {
+    state.currentCaseId = caseId;
+    try {
+      const { case: c } = await api(`/api/cases/${caseId}`);
+      state.currentCase = c;
+      document.querySelectorAll('.case-item').forEach(el => {
+        el.classList.toggle('active', parseInt(el.dataset.id) === caseId);
+      });
+      $('#freeChatItem').classList.remove('active');
+      $('#breadcrumb').textContent = `Case Library · № ${state.cases.findIndex(x => x.id === caseId) + 1}`;
+      $('#chatTitle').textContent = c.title;
+      $('#chatSubtitle').textContent = c.description || '';
+      if (c.file_path) {
+        $('#caseFileLink').href = c.file_path;
+        $('#caseFileLink').style.display = 'inline-block';
+      } else {
+        $('#caseFileLink').style.display = 'none';
+      }
+      await loadMessages(caseId);
+    } catch (e) {
+      toast(e.message);
+    }
+  }
+
+  function selectFreeChat() {
+    state.currentCaseId = null;
+    state.currentCase = null;
+    document.querySelectorAll('.case-item').forEach(el => el.classList.remove('active'));
+    $('#freeChatItem').classList.add('active');
+    $('#breadcrumb').textContent = 'Open Discussion';
+    $('#chatTitle').textContent = 'Free Conversation';
+    $('#chatSubtitle').textContent = 'Ask anything you want here.';
+    $('#caseFileLink').style.display = 'none';
+    loadMessages(null);
+  }
+
+  async function loadMessages(caseId) {
+    const params = caseId ? `?case_id=${caseId}` : '';
+    try {
+      const { messages } = await api('/api/messages' + params);
+      renderMessages(messages);
+    } catch (e) {
+      toast(e.message);
+    }
+  }
+
+  function renderMessages(messages) {
+    const wrap = $('#messages');
+    if (messages.length === 0) {
+      if (state.currentCase) {
+        wrap.innerHTML = `
+          <div class="case-content-preview">
+            <span class="preview-label">Case Material</span>
+            ${escapeHtml(state.currentCase.content)}
+          </div>
+          <div class="empty-state">
+            <div class="empty-state-mark serif">¶</div>
+            <div class="empty-state-text serif">Read the case above, then <em>ask your first question</em>.</div>
+            <div class="empty-state-sub">The AI will guide your thinking instead of handing over answers.</div>
+          </div>
+        `;
+      } else {
+        wrap.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-mark serif">¶</div>
+            <div class="empty-state-text serif">Ask me <em>anything</em>.</div>
+            <div class="empty-state-sub">Learning starts with a good question.</div>
+          </div>
+        `;
+      }
+      return;
+    }
+
+    let html = '';
+    if (state.currentCase) {
+      html += `
+        <div class="case-content-preview">
+          <span class="preview-label">Case Material</span>
+          ${escapeHtml(state.currentCase.content)}
+        </div>
+      `;
+    }
+    html += messages.map(m => renderMsgHtml(m)).join('');
+    wrap.innerHTML = html;
+    wrap.scrollTop = wrap.scrollHeight;
+  }
+
+  function renderMsgHtml(m) {
+    const isUser = m.role === 'user';
+    return `
+      <div class="msg ${isUser ? 'user' : 'assistant'}">
+        <div class="msg-avatar serif">${isUser ? state.name[0] : 'A'}</div>
+        <div class="msg-body">
+          <div class="msg-role">${isUser ? state.name : 'Apprentice · AI'}</div>
+          <div class="msg-content">${formatMsg(m.content)}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  function appendMsg(msg) {
+    const wrap = $('#messages');
+    if (wrap.querySelector('.empty-state') && !wrap.querySelector('.msg')) {
+      const preview = wrap.querySelector('.case-content-preview');
+      wrap.innerHTML = preview ? preview.outerHTML : '';
+    }
+    wrap.insertAdjacentHTML('beforeend', renderMsgHtml(msg));
+    wrap.scrollTop = wrap.scrollHeight;
+  }
+
+  function appendTyping() {
+    const wrap = $('#messages');
+    wrap.insertAdjacentHTML('beforeend', `
+      <div class="msg assistant" id="typingMsg">
+        <div class="msg-avatar serif">A</div>
+        <div class="msg-body">
+          <div class="msg-role">Apprentice · AI</div>
+          <div class="msg-content">
+            <div class="typing-indicator"><span></span><span></span><span></span></div>
+          </div>
+        </div>
+      </div>
+    `);
+    wrap.scrollTop = wrap.scrollHeight;
+  }
+
+  async function sendMessage() {
+    if (state.sending) return;
+    const input = $('#composerInput');
+    const text = input.value.trim();
+    if (!text) return;
+
+    state.sending = true;
+    $('#sendBtn').disabled = true;
+    input.value = '';
+    input.style.height = 'auto';
+
+    appendMsg({ role: 'user', content: text });
+    appendTyping();
+
+    try {
+      const data = await api('/api/chat', {
+        method: 'POST',
+        body: JSON.stringify({ message: text, case_id: state.currentCaseId })
+      });
+      $('#typingMsg')?.remove();
+      appendMsg({ role: 'assistant', content: data.reply });
+    } catch (e) {
+      $('#typingMsg')?.remove();
+      toast(e.message);
+    } finally {
+      state.sending = false;
+      $('#sendBtn').disabled = false;
+      input.focus();
+    }
+  }
+
+  $('#enterBtn').addEventListener('click', handleLogin);
+  $('#nameInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') handleLogin();
+  });
+  $('#freeChatItem').addEventListener('click', selectFreeChat);
+  $('#sendBtn').addEventListener('click', sendMessage);
+  $('#composerInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+  $('#composerInput').addEventListener('input', (e) => {
+    e.target.style.height = 'auto';
+    e.target.style.height = Math.min(200, e.target.scrollHeight) + 'px';
+  });
+
+  updateLoginDate();
+  if (state.token && state.name) {
+    enterMain();
+  } else {
+    $('#nameInput').focus();
+  }
+</script>
+</body>
+</html>
